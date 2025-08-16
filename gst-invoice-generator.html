@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GST Invoice Generator</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background-color: #f9faff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+}
+
+header {
+  background: linear-gradient(90deg, #a0d8f1, #cce7f9);
+  color: #004e92;
+  padding: 18px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5em;
+  letter-spacing: 0.3px;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+  padding: 5px;
+}
+
+.subheader {
+  width: 100%;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.subheader h2 {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: normal;
+  color: #004e92;
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+  gap: 12px;
+  width: 100%;
+  max-width: 1400px;
+  padding-bottom: 100px;
+}
+.column {
+  flex: 1 1 300px;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #004e92;
+  font-size: 0.9em;
+}
+input[type="text"], input[type="number"], select, input[type="date"] {
+  width: 100%;
+  padding: 5px 10px;
+  margin-top: 3px;
+  border-radius: 4px;
+  border: 1px solid #99ccee;
+  font-size: 0.9em;
+  background: #f0f8ff;
+  box-sizing: border-box;
+}
+input:focus, select:focus {
+  border-color: #66b2ff;
+  box-shadow: 0 0 4px rgba(102,178,255,0.3);
+  outline: none;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 0.88em;
+}
+th, td {
+  border: 1px solid #99ccee;
+  padding: 4px 6px;
+  text-align: left;
+}
+th {
+  background: #cce7f9;
+  color: #004e92;
+}
+td input, td select { width: 100%; padding: 3px; box-sizing: border-box; }
+td.numeric { text-align:right; }
+button {
+  padding: 6px 10px;
+  margin-top: 8px;
+  font-size: 0.85em;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+#addRowBtn { background-color: #99d1ff; color: #004e92; }
+#addRowBtn:hover { background-color: #66b2ff; color: white; }
+#recalculateBtn { background-color: #ffb84d; color: #004e92; }
+#recalculateBtn:hover { background-color: #e69500; color: white; }
+#generatePdfBtn { background-color: #4dc080; color: white; }
+#generatePdfBtn:hover { background-color: #339966; }
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #0a74da, #005ba0);
+  color: white;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.9em;
+  z-index: 1000;
+}
+@media(max-width: 1200px){
+  main { flex-wrap: wrap; }
+  .column { flex: 1 1 100%; }
+}
+.summary {
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.summary div{
+  flex:1 1 200px;
+}
+.reset-button {
+  background-color: #e74c3c;
+  color: white;
+  padding: 5px 8px;
+  margin-left: 10px;
+}
+.reset-button:hover {
+  background-color: #c0392b;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="S World Logo (2).png" alt="S World Logo" class="logo">
+  <h1>FREE TAX TOOLS BY S WORLD</h1>
+</header>
+<div class="subheader">
+  <h2>GST Invoice Generator</h2>
+</div>
+
+<main>
+  <div class="column">
+    <label for="sellerName">Seller Name</label>
+    <input type="text" id="sellerName">
+    <button class="reset-button" onclick="clearDetails('seller')">Reset Seller</button>
+
+    <label for="sellerGST">Seller GSTIN</label>
+    <input type="text" id="sellerGST">
+
+    <label for="sellerAddress">Address</label>
+    <input type="text" id="sellerAddress">
+
+    <label for="sellerState">State</label>
+    <select id="sellerState"></select>
+
+    <label for="sellerMobile">Mobile No.</label>
+    <input type="text" id="sellerMobile">
+  </div>
+
+  <div class="column">
+    <label for="buyerName">Buyer Name</label>
+    <input type="text" id="buyerName">
+    <button class="reset-button" onclick="clearDetails('buyer')">Reset Buyer</button>
+    
+    <label for="buyerGST">Buyer GSTIN</label>
+    <input type="text" id="buyerGST">
+    
+    <label for="buyerAddress">Address</label>
+    <input type="text" id="buyerAddress">
+
+    <label for="buyerState">State</label>
+    <select id="buyerState"></select>
+
+    <label for="buyerMobile">Mobile No.</label>
+    <input type="text" id="buyerMobile">
+  </div>
+
+  <div class="column">
+    <label for="invoiceNo">Invoice No.</label>
+    <input type="text" id="invoiceNo">
+
+    <label for="invoiceDate">Invoice Date</label>
+    <input type="date" id="invoiceDate">
+
+    <label for="paymentType">Payment Type</label>
+    <select id="paymentType">
+      <option value="Cash">Cash</option>
+      <option value="UPI">UPI</option>
+      <option value="Card">Card</option>
+      <option value="Netbanking">Netbanking</option>
+    </select>
+  </div>
+
+  <div class="column" style="flex-basis:100%;">
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Item Name</th>
+          <th>GST Rate</th>
+          <th>Qty</th>
+          <th>Price (Incl GST)</th>
+          <th>Basic</th>
+          <th>SGST</th>
+          <th>CGST</th>
+          <th>IGST</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" class="itemName"></td>
+          <td>
+            <select class="gstRate">
+              <option value="0">Nil</option>
+              <option value="5">5%</option>
+              <option value="12">12%</option>
+              <option value="18">18%</option>
+              <option value="28">28%</option>
+            </select>
+          </td>
+          <td><input type="number" class="quantity" value="1" min="1"></td>
+          <td><input type="number" class="price" value="0" min="0"></td>
+          <td class="basic numeric">0</td>
+          <td class="sgst numeric">0</td>
+          <td class="cgst numeric">0</td>
+          <td class="igst numeric">0</td>
+          <td class="total numeric">0</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr style="font-weight:bold;">
+          <td colspan="4">Grand Total</td>
+          <td class="grandBasic numeric">0</td>
+          <td class="grandSGST numeric">0</td>
+          <td class="grandCGST numeric">0</td>
+          <td class="grandIGST numeric">0</td>
+          <td class="grandTotal numeric">0</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div style="margin-top:10px; display:flex; gap:10px;">
+      <button id="addRowBtn" onclick="addItem()">Add Row</button>
+      <button id="recalculateBtn" onclick="calculateInvoice()">Recalculate</button>
+      <button id="generatePdfBtn" onclick="generatePDF()">Generate PDF</button>
+    </div>
+
+    <div class="summary">
+      <div>
+        <label>Total Invoice Value</label>
+        <input type="number" id="totalInvoice" readonly>
+      </div>
+      <div>
+        <label>Payment Received</label>
+        <input type="number" id="paymentReceived" placeholder="Amount" oninput="updateBalance()">
+      </div>
+      <div>
+        <label>Balance Amount</label>
+        <input type="number" id="balanceAmount" readonly>
+      </div>
+      <div>
+        <label>Payment Type</label>
+        <select id="paymentTypeSummary">
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Card">Card</option>
+          <option value="Netbanking">Netbanking</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mobile: 8319601616</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// === States ===
+const states = ["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman & Nicobar Islands","Chandigarh","Dadra & Nagar Haveli and Daman & Diu","Delhi","Jammu & Kashmir","Ladakh","Lakshadweep","Puducherry"];
+const sellerStateSelect=document.getElementById('sellerState');
+const buyerStateSelect=document.getElementById('buyerState');
+states.forEach(st=>{
+  let o1=new Option(st,st); sellerStateSelect.add(o1);
+  let o2=new Option(st,st); buyerStateSelect.add(o2);
+});
+document.getElementById('invoiceDate').valueAsDate=new Date();
+
+// === Local Storage Logic ===
+function saveDetails(prefix) {
+  const details = {};
+  document.querySelectorAll(`#${prefix}Name, #${prefix}GST, #${prefix}Address, #${prefix}State, #${prefix}Mobile`).forEach(input => {
+    details[input.id] = input.value;
+  });
+  localStorage.setItem(`${prefix}Details`, JSON.stringify(details));
+}
+
+function loadDetails(prefix) {
+  const saved = localStorage.getItem(`${prefix}Details`);
+  if (saved) {
+    const details = JSON.parse(saved);
+    for (const key in details) {
+      const input = document.getElementById(key);
+      if (input) {
+        input.value = details[key];
+      }
+    }
+  }
+}
+
+function clearDetails(prefix) {
+  localStorage.removeItem(`${prefix}Details`);
+  document.querySelectorAll(`#${prefix}Name, #${prefix}GST, #${prefix}Address, #${prefix}State, #${prefix}Mobile`).forEach(input => {
+    if (input.tagName === 'SELECT') {
+      input.selectedIndex = 0;
+    } else {
+      input.value = '';
+    }
+  });
+}
+
+// Attach event listeners for saving details
+document.querySelectorAll('#sellerName, #sellerGST, #sellerAddress, #sellerState, #sellerMobile').forEach(input => {
+  input.addEventListener('input', () => saveDetails('seller'));
+  input.addEventListener('change', () => saveDetails('seller'));
+});
+document.querySelectorAll('#buyerName, #buyerGST, #buyerAddress, #buyerState, #buyerMobile').forEach(input => {
+  input.addEventListener('input', () => saveDetails('buyer'));
+  input.addEventListener('change', () => saveDetails('buyer'));
+});
+
+// Load details on page load
+window.addEventListener('load', () => {
+  loadDetails('seller');
+  loadDetails('buyer');
+});
+
+// === Add Row ===
+function addItem(){
+  const table=document.querySelector('#itemsTable tbody');
+  const row=document.createElement('tr');
+  row.innerHTML=`
+    <td><input type="text" class="itemName"></td>
+    <td>
+      <select class="gstRate">
+        <option value="0">Nil</option>
+        <option value="5">5%</option>
+        <option value="12">12%</option>
+        <option value="18">18%</option>
+        <option value="28">28%</option>
+      </select>
+    </td>
+    <td><input type="number" class="quantity" value="1" min="1"></td>
+    <td><input type="number" class="price" value="0" min="0"></td>
+    <td class="basic numeric">0</td>
+    <td class="sgst numeric">0</td>
+    <td class="cgst numeric">0</td>
+    <td class="igst numeric">0</td>
+    <td class="total numeric">0</td>`;
+  table.appendChild(row);
+  attachEvents();
+}
+
+// === Events ===
+function attachEvents(){
+  document.querySelectorAll('#itemsTable tbody tr').forEach(r=>{
+    r.querySelectorAll('input,select').forEach(e=>{
+      e.oninput=calculateInvoice; e.onchange=calculateInvoice;
+    });
+  });
+}
+
+// === Calculate ===
+function calculateInvoice(){
+  const sellerState=document.getElementById('sellerState').value;
+  const buyerState=document.getElementById('buyerState').value;
+  let gBasic=0,gSGST=0,gCGST=0,gIGST=0,gTotal=0;
+  document.querySelectorAll('#itemsTable tbody tr').forEach(r=>{
+    const qty=parseFloat(r.querySelector('.quantity').value)||0;
+    const price=parseFloat(r.querySelector('.price').value)||0;
+    const gst=parseFloat(r.querySelector('.gstRate').value)||0;
+    let basic=(price/(1+gst/100))*qty;
+    let sgst=0,cgst=0,igst=0;
+    if(sellerState && buyerState){
+      if(sellerState===buyerState){ sgst=(basic*gst/100)/2; cgst=sgst; }
+      else{ igst=basic*gst/100; }
+    }
+    let total=basic+sgst+cgst+igst;
+    r.querySelector('.basic').innerText=basic.toFixed(2);
+    r.querySelector('.sgst').innerText=sgst.toFixed(2);
+    r.querySelector('.cgst').innerText=cgst.toFixed(2);
+    r.querySelector('.igst').innerText=igst.toFixed(2);
+    r.querySelector('.total').innerText=total.toFixed(2);
+    gBasic+=basic; gSGST+=sgst; gCGST+=cgst; gIGST+=igst; gTotal+=total;
+  });
+  document.querySelector('.grandBasic').innerText=gBasic.toFixed(2);
+  document.querySelector('.grandSGST').innerText=gSGST.toFixed(2);
+  document.querySelector('.grandCGST').innerText=gCGST.toFixed(2);
+  document.querySelector('.grandIGST').innerText=gIGST.toFixed(2);
+  document.querySelector('.grandTotal').innerText=gTotal.toFixed(2);
+  document.getElementById('totalInvoice').value=gTotal.toFixed(2);
+  updateBalance();
+}
+
+// === Balance ===
+function updateBalance(){
+  const total=parseFloat(document.getElementById('totalInvoice').value)||0;
+  const rec=parseFloat(document.getElementById('paymentReceived').value)||0;
+  document.getElementById('balanceAmount').value=(total-rec).toFixed(2);
+}
+
+// === PDF ===
+function generatePDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p','mm','a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = {left:14,right:14,top:15,bottom:18};
+  const n = v=>(parseFloat(v)||0).toFixed(2);
+
+  const taxable = parseFloat(document.querySelector('.grandBasic').innerText)||0;
+  const sgst = parseFloat(document.querySelector('.grandSGST').innerText)||0;
+  const cgst = parseFloat(document.querySelector('.grandCGST').innerText)||0;
+  const igst = parseFloat(document.querySelector('.grandIGST').innerText)||0;
+  const totalGST = sgst+cgst+igst;
+  const gTotal = parseFloat(document.querySelector('.grandTotal').innerText)||0;
+  const paid = parseFloat(document.getElementById('paymentReceived').value)||0;
+  const balance = gTotal-paid;
+
+  // Seller State & Payment Type
+  const sellerState = document.getElementById("sellerState").value || "Seller State";
+  const paymentType = document.getElementById("paymentType") ? document.getElementById("paymentType").value : "N/A";
+
+  // Buyer Name & Invoice No. for filename
+  const buyerName = (document.getElementById("buyerName").value || "Buyer").replace(/\s+/g,'_');
+  const invoiceNo = (document.getElementById("invoiceNo").value || "Invoice");
+
+  // Number to words
+  function inWords(num){
+    const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+    'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    if((num=num.toString()).length>9) return 'Overflow';
+    const n=('000000000'+num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if(!n) return; let str='';
+    str+=(n[1]!=0)?(a[Number(n[1])]||b[n[1][0]]+' '+a[n[1][1]])+' Crore ':'';
+    str+=(n[2]!=0)?(a[Number(n[2])]||b[n[2][0]]+' '+a[n[2][1]])+' Lakh ':'';
+    str+=(n[3]!=0)?(a[Number(n[3])]||b[n[3][0]]+' '+a[n[3][1]])+' Thousand ':'';
+    str+=(n[4]!=0)?(a[Number(n[4])]||b[n[4][0]]+' '+a[n[4][1]])+' Hundred ':'';
+    str+=(n[5]!=0)?((str!='')?'and ':'')+(a[Number(n[5])]||b[n[5][0]]+' '+a[n[5][1]])+' ':'';
+    return str.trim()+" Only";
+  }
+  const amountWords = inWords(Math.round(gTotal));
+
+  // === Header ===
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text("TAX INVOICE", pageWidth/2, margin.top, {align:"center"});
+
+  let y=28;
+  doc.setFontSize(10); doc.setFont('helvetica','bold'); 
+  doc.text("Seller:",margin.left,y); 
+  doc.setFont('helvetica','normal');
+  doc.text(document.getElementById("sellerName").value||"-",margin.left,y+5);
+  doc.text("GSTIN: "+(document.getElementById("sellerGST").value||"-"),margin.left,y+10);
+  doc.text("Address: "+(document.getElementById("sellerAddress").value||"-"),margin.left,y+15);
+  doc.text("State: "+(sellerState||"-"),margin.left,y+20);
+
+  doc.setFont('helvetica','bold'); doc.text("Buyer:",pageWidth/2,y); 
+  doc.setFont('helvetica','normal');
+  doc.text(document.getElementById("buyerName").value||"-",pageWidth/2,y+5);
+  doc.text("GSTIN: "+(document.getElementById("buyerGST").value||"-"),pageWidth/2,y+10);
+  doc.text("Address: "+(document.getElementById("buyerAddress").value||"-"),pageWidth/2,y+15);
+  doc.text("State: "+(document.getElementById("buyerState").value||"-"),pageWidth/2,y+20);
+
+  y+=28;
+  doc.setFont('helvetica','bold');
+  doc.text("Invoice No: "+(invoiceNo||"-"),margin.left,y);
+  doc.text("Date: "+(document.getElementById("invoiceDate").value||"-"),pageWidth/2,y);
+
+  // === Items table ===
+  const body=[]; document.querySelectorAll("#itemsTable tbody tr").forEach(r=>{
+    body.push([
+      r.querySelector(".itemName").value||"-",
+      (r.querySelector(".gstRate").value||"0")+"%",
+      r.querySelector(".quantity").value||"0",
+      r.querySelector(".price").value||"0",
+      r.querySelector(".basic").innerText||"0",
+      r.querySelector(".sgst").innerText||"0",
+      r.querySelector(".cgst").innerText||"0",
+      r.querySelector(".igst").innerText||"0",
+      r.querySelector(".total").innerText||"0"
+    ]);
+  });
+  doc.autoTable({
+    startY:y+6,
+    head:[['Item','GST Rate','Qty','Price (Incl GST)','Basic','SGST','CGST','IGST','Total']],
+    body:body,
+    theme:'grid',
+    styles:{fontSize:9},
+    headStyles:{fillColor:[0,92,153],textColor:255,halign:'center'},
+    bodyStyles:{halign:'right'},
+    columnStyles:{0:{halign:'left'}},
+    margin:{left:margin.left,right:margin.right}
+  });
+
+  // === Notes (Plain, dynamic jurisdiction) ===
+  let gy = doc.lastAutoTable.finalY+8;
+  doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text("Notes:", margin.left, gy);
+  doc.setFont('helvetica','normal');
+  let notesLines = [
+    "- This is a computer-generated invoice. No signature required.",
+    `- Subject to ${sellerState} jurisdiction only.`,
+    "- Thank you for your business!"
+  ];
+  notesLines.forEach((line,i)=> doc.text(line, margin.left, gy+6+(i*6)));
+
+  // === GST Summary (Right Box) ===
+  doc.autoTable({
+    startY: gy,
+    margin:{left:pageWidth/2},
+    tableWidth:(pageWidth/2 - margin.right),
+    head:[["Particulars","Amount"]],
+    body:[
+      ["Total Taxable Value",n(taxable)],
+      ["Total GST",n(totalGST)],
+      [{content:"Grand Total", styles:{fillColor:[255,230,150], fontStyle:'bold'}}, {content:n(gTotal), styles:{fillColor:[255,230,150], fontStyle:'bold'}}],
+      ["Paid Amount",n(paid)],
+      ["Payment Type",paymentType],
+      [{content:"Balance Amount", styles:{textColor:[200,0,0], fontStyle:'bold'}}, {content:n(balance), styles:{textColor:[200,0,0], fontStyle:'bold'}}]
+    ],
+    theme:'grid',
+    styles:{fontSize:9},
+    headStyles:{fillColor:[100,100,255]},
+    columnStyles:{
+      0:{halign:'left'},   // align Particulars LEFT
+      1:{halign:'right'}   // align Amount RIGHT
+    }
+  });
+
+  let afterGST=Math.max(doc.lastAutoTable.finalY, gy+notesLines.length*6+12)+10;
+  doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text("Grand Total (in words):",margin.left,afterGST);
+  doc.setFont('helvetica','normal'); 
+  doc.text(amountWords,margin.left,afterGST+6);
+
+  // === Authorized Signatory ===
+  const rightAlignX = pageWidth - margin.right;
+  doc.setFont('helvetica','bold');
+  doc.text("For " + (document.getElementById("sellerName").value || "Seller"), rightAlignX, afterGST + 20, { align: 'right' });
+  doc.setFont('helvetica','normal');
+  doc.text("(Authorized Signatory)", rightAlignX, afterGST + 26, { align: 'right' });
+  
+
+  // === Footer fixed ===
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.text("Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mob: 8319601616", pageWidth/2, pageHeight-6, {align:'center'});
+  doc.setTextColor(0);
+
+  // Save with BuyerName_InvoiceNo.pdf
+  doc.save(`${buyerName}_${invoiceNo}.pdf`);
+}
+
+
+attachEvents();
+calculateInvoice();
+</script>
+</body>
+</html>

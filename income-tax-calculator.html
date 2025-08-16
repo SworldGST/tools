@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Income Tax Calculator - New Regime</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background-color: #f9faff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+}
+
+header {
+  background: linear-gradient(90deg, #a0d8f1, #cce7f9);
+  color: #004e92;
+  padding: 18px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5em;
+  letter-spacing: 0.3px;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+  padding: 5px;
+}
+
+.note {
+  text-align: center;
+  margin: 10px auto;
+  max-width: 1400px;
+  color: #004e92;
+  font-weight: bold;
+}
+
+main {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  padding: 20px;
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  gap: 10px;
+  padding-bottom: 100px;
+}
+
+.column {
+  flex: 1 1 0;
+  background: linear-gradient(to bottom, #ffffff, #e6f4fb);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  transition: 0.3s;
+  min-width: 250px;
+}
+
+.column:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.18); }
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 600;
+  color: #005ba0;
+}
+
+input[type="number"], select {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #0a74da;
+  font-size: 0.95em;
+  background: #f7fcff;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+
+input[type="number"]:focus, select:focus {
+  border-color: #004e92;
+  box-shadow: 0 0 6px rgba(0,78,146,0.35);
+  outline: none;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.checkbox-grid label {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  cursor: pointer;
+  color: #005ba0;
+  background: #e6f4fb;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.checkbox-grid label:hover { background: #cce6f7; }
+
+.checkbox-grid input[type="checkbox"] {
+  margin-right: 6px;
+  transform: scale(1.1);
+  accent-color: #0a74da;
+}
+
+button {
+  width: 100%;
+  padding: 11px;
+  margin-top: 20px;
+  background: linear-gradient(90deg, #0a74da, #005ba0);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover { background: linear-gradient(90deg, #005ba0, #004e92); }
+
+.result table {
+  width: 100%;
+  border-collapse: collapse;
+  font-weight: bold;
+}
+
+.result th, .result td {
+  border: 1px solid #0a74da;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.result th {
+  background: linear-gradient(to right, #0a74da, #005ba0);
+  color: white;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #0a74da, #005ba0);
+  color: white;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.9em;
+  z-index: 1000;
+}
+
+@media(max-width: 1200px){
+  main { flex-wrap: wrap; }
+  .column { flex: 1 1 100%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="S World Logo (2).png" alt="S World Logo" class="logo">
+  <h1>FREE TAX TOOLS BY S WORLD</h1>
+</header>
+<div class="note"><strong>Income Tax Calculation is for individuals below 60 years only & Who Have Opted For New Tax Regime</strong>.</div>
+
+<main>
+<div class="column">
+  <label for="fy">Select Financial Year</label>
+  <select id="fy">
+    <option value="fy24">FY 2024–25 (AY 2025–26)</option>
+    <option value="fy25">FY 2025–26 (AY 2026–27)</option>
+  </select>
+
+  <label>Income Sources</label>
+  <div class="checkbox-grid">
+    <label><input type="checkbox" id="chkSalary" onclick="toggleInput('salaryDiv')">Salary</label>
+    <label><input type="checkbox" id="chkHouse" onclick="toggleInput('houseDiv')">House Property</label>
+    <label><input type="checkbox" id="chkBusiness" onclick="toggleInput('businessDiv')">Business</label>
+    <label><input type="checkbox" id="chkOther" onclick="toggleInput('otherDiv')">Other</label>
+    <label><input type="checkbox" id="chkSTCG" onclick="toggleInput('stcgDiv')">STCG</label>
+    <label><input type="checkbox" id="chkLTCG" onclick="toggleInput('ltcgDiv')">LTCG</label>
+  </div>
+
+  <div id="salaryDiv" style="display:none;">
+    <label for="salary">Salary Income (Rs.)</label>
+    <input type="number" id="salary" value="0" placeholder="Enter Salary Income">
+  </div>
+  <div id="houseDiv" style="display:none;">
+    <label for="house">House Property Income (Rs.)</label>
+    <input type="number" id="house" value="0" placeholder="Enter House Property Income">
+  </div>
+  <div id="businessDiv" style="display:none;">
+    <label for="business">Business Income (Rs.)</label>
+    <input type="number" id="business" value="0" placeholder="Enter Business Income">
+  </div>
+  <div id="otherDiv" style="display:none;">
+    <label for="other">Other Income (Rs.)</label>
+    <input type="number" id="other" value="0" placeholder="Enter Other Income">
+  </div>
+  <div id="stcgDiv" style="display:none;">
+    <label for="stcg">Short-Term Capital Gains (Rs.)</label>
+    <input type="number" id="stcg" value="0" placeholder="Enter STCG">
+  </div>
+  <div id="ltcgDiv" style="display:none;">
+    <label for="ltcg">Long-Term Capital Gains (Rs.)</label>
+    <input type="number" id="ltcg" value="0" placeholder="Enter LTCG">
+  </div>
+</div>
+
+<div class="column">
+  <label>Deductions (Rs.)</label>
+  <div>
+    <label for="stdDeduction">Standard Deduction (Rs. 75,000)</label>
+    <input type="number" id="stdDeduction" value="75000" readonly>
+  </div>
+  <div>
+    <label for="nps">Employer NPS Contribution</label>
+    <input type="number" id="nps" value="0" placeholder="Enter NPS Contribution">
+  </div>
+  <div>
+    <label for="agniveer">Agniveer Fund Deduction</label>
+    <input type="number" id="agniveer" value="0" placeholder="Enter Agniveer Fund">
+  </div>
+  <button onclick="calculateTax()">Calculate Tax</button>
+  <button onclick="savePDF()">Save as PDF</button>
+</div>
+
+<div class="column">
+  <div id="result" class="result" style="display:none;"></div>
+</div>
+
+</main>
+<footer>Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mobile No.: 8319601616</footer>
+
+<script>
+function toggleInput(divId){
+  const container = document.getElementById(divId);
+  container.style.display = container.style.display==='none' ? 'block' : 'none';
+}
+function getVisibleValue(id){
+  const el = document.getElementById(id);
+  if(!el || el.parentElement.style.display==='none') return 0;
+  return parseFloat(el.value)||0;
+}
+function computeSlabTax(income, slabs){
+  let tax=0, prev=0;
+  for(let slab of slabs){
+    if(income>prev){
+      let amt = Math.min(income, slab.limit)-prev;
+      tax+=amt*slab.rate;
+      prev=slab.limit;
+    } else break;
+  }
+  return tax;
+}
+function calculateTax(){
+  const fy=document.getElementById('fy').value;
+  const salary=getVisibleValue('salary');
+  const house=getVisibleValue('house');
+  const business=getVisibleValue('business');
+  const other=getVisibleValue('other');
+  const stcg=getVisibleValue('stcg');
+  let ltcg=getVisibleValue('ltcg');
+
+  const stdDed=parseFloat(document.getElementById('stdDeduction').value)||0;
+  const nps=parseFloat(document.getElementById('nps').value)||0;
+  const agniveer=parseFloat(document.getElementById('agniveer').value)||0;
+
+  let totalIncome=salary+house+business+other;
+  let totalDeductions=stdDed+nps+agniveer;
+  let netIncome=totalIncome - totalDeductions;
+  if(netIncome<0) netIncome=0;
+
+  let slabs=[];
+  if(fy==='fy24'){
+    slabs=[{limit:300000,rate:0},{limit:700000,rate:0.05},{limit:1000000,rate:0.1},{limit:1200000,rate:0.15},{limit:1500000,rate:0.2},{limit:5000000,rate:0.3}];
+  } else {
+    slabs=[{limit:400000,rate:0},{limit:800000,rate:0.05},{limit:1200000,rate:0.1},{limit:1600000,rate:0.15},{limit:2000000,rate:0.2},{limit:2400000,rate:0.25},{limit:Infinity,rate:0.3}];
+  }
+
+  let tax=computeSlabTax(netIncome,slabs);
+  if(fy==='fy24' && netIncome<=700000) tax=0;
+  if(fy==='fy25' && netIncome<=1200000) tax=0;
+
+  ltcg=Math.max(0, ltcg-125000);
+  let stcgTax=stcg*0.2;
+  let ltcgTax=ltcg*0.125;
+  let totalTax=tax+stcgTax+ltcgTax;
+  totalTax+=totalTax*0.04;
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').innerHTML=
+    `<table>
+    <tr><th>Component</th><th>Amount (Rs.)</th></tr>
+    <tr><td>Salary</td><td>${salary.toLocaleString('en-IN')}</td></tr>
+    <tr><td>House Property</td><td>${house.toLocaleString('en-IN')}</td></tr>
+    <tr><td>Business</td><td>${business.toLocaleString('en-IN')}</td></tr>
+    <tr><td>Other Income</td><td>${other.toLocaleString('en-IN')}</td></tr>
+    <tr><td>STCG</td><td>${stcg.toLocaleString('en-IN')}</td></tr>
+    <tr><td>LTCG</td><td>${ltcg.toLocaleString('en-IN')}</td></tr>
+    <tr><th>Total Income</th><th>${totalIncome.toLocaleString('en-IN')}</th></tr>
+    <tr><td colspan="2"><hr></td></tr>
+    <tr><td>Total Deductions</td><td>${totalDeductions.toLocaleString('en-IN')}</td></tr>
+    <tr><td><strong>Net Income after Deductions</strong></td><td><strong>${netIncome.toLocaleString('en-IN')}</strong></td></tr>
+    <tr><td colspan="2"><hr></td></tr>
+    <tr><td>Tax on Income</td><td>${tax.toLocaleString('en-IN')}</td></tr>
+    <tr><td>STCG Tax</td><td>${stcgTax.toLocaleString('en-IN')}</td></tr>
+    <tr><td>LTCG Tax</td><td>${ltcgTax.toLocaleString('en-IN')}</td></tr>
+    <tr><th>Total Tax (incl. 4% Cess)</th><th>${totalTax.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</th></tr>
+    </table>`;
+}
+function savePDF(){ window.print(); }
+</script>
+</body>
+</html>
