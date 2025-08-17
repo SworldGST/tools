@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tax Tools By S World</title>
+<title>Accounting Tools Hub</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -50,7 +51,7 @@ main {
     max-width: 1200px;
     flex-grow: 1;
 }
-.tools-container {
+.tools-container, .external-links-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -83,7 +84,10 @@ main {
     margin-bottom: 20px;
 }
 .tool-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     padding: 10px 20px;
     background-color: #4dc080;
     color: white;
@@ -94,6 +98,53 @@ main {
 }
 .tool-link:hover {
     background-color: #339966;
+}
+.external-link-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex: 1 1 auto;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.external-link-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+.btn-new-1 {
+    background-color: #0d6efd; /* A modern, bright blue */
+}
+.btn-new-1:hover {
+    background-color: #0b5ed7;
+}
+.btn-new-2 {
+    background-color: #6c757d; /* A professional gray */
+}
+.btn-new-2:hover {
+    background-color: #5c636a;
+}
+.btn-new-3 {
+    background-color: #198754; /* A deep, professional green */
+}
+.btn-new-3:hover {
+    background-color: #157347;
+}
+.section-heading {
+    width: 100%;
+    text-align: center;
+    color: #004e92;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    font-size: 1.6em;
+    font-weight: bold;
 }
 footer {
     position: fixed;
@@ -121,27 +172,37 @@ footer {
     <div class="tool-card">
       <h2>Income Tax Calculator</h2>
       <p>Calculate your income tax liability easily and accurately for the current financial year.</p>
-      <a href="income-tax-calculator.html" class="tool-link">Go to Tool</a>
+      <a href="income-tax-calculator.html" class="tool-link"><i class="fas fa-calculator"></i> Go to Tool</a>
     </div>
     
     <div class="tool-card">
       <h2>GST Invoice Generator</h2>
       <p>Generate professional and compliant GST invoices with automatic tax calculations.</p>
-      <a href="gst-invoice-generator.html" class="tool-link">Go to Tool</a>
+      <a href="gst-invoice-generator.html" class="tool-link"><i class="fas fa-file-invoice-dollar"></i> Go to Tool</a>
     </div>
     
     <div class="tool-card">
       <h2>TDS Calculator</h2>
-      <p>Calculate TDS before making payments to the GST Supplier.</p>
-      <a href="tds-calculator.html" class="tool-link">Go to Tool</a>
+      <p>Determine TDS on various payments as per the latest government regulations.</p>
+      <a href="tds-calculator.html" class="tool-link"><i class="fas fa-percent"></i> Go to Tool</a>
     </div>
+  </div>
+  
+  <h2 class="section-heading">USEFUL EXTERNAL LINKS</h2>
+  <div class="external-links-container">
+    <a href="https://services.gst.gov.in/services/searchtp" target="_blank" class="external-link-button btn-new-1">
+      <i class="fas fa-search-plus"></i> Search GST No.
+    </a>
+    <a href="https://eportal.incometax.gov.in/iec/foservices/#/pre-login/bl-link-aadhaar" target="_blank" class="external-link-button btn-new-2">
+      <i class="fas fa-link"></i> Link Pan & Aadhar
+    </a>
+    <a href="https://groww.in/calculators/home-loan-emi-calculator" target="_blank" class="external-link-button btn-new-3">
+      <i class="fas fa-house-user"></i> Home Loan EMI Calculator
+    </a>
   </div>
 </main>
 
-<footer>©Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mobile: 8319601616</footer>
+<footer>Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mobile: 8319601616</footer>
 
 </body>
 </html>
-
-
-
