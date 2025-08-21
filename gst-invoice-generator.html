@@ -194,6 +194,33 @@ footer {
   input, select, textarea{font-size:13px}
   table{min-width:650px}
 }
+
+@media(max-width: 768px){
+  .table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid #99ccee;
+    border-radius: 8px;
+  }
+  .summary {
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+  }
+  .upload-section {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid #99ccee;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 80px; /* space for footer */
+  }
+  #page {
+    padding-bottom: 140px; /* more space for footer */
+  }
+}
+
 </style>
 </head>
 <body>
