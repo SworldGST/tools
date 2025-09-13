@@ -771,12 +771,7 @@ async function generatePDF(){
     body:firstBatch,
     theme:'plain',
     styles:{fontSize:9, lineWidth:0.2, lineColor:[120,120,120], fillColor:false},
-    headStyles:{
-      fillColor:[220,235,245], // darker Alice Blue
-      textColor:[0,0,0],
-      fontStyle:'bold',
-      halign:'center'
-    },
+    headStyles:{fillColor:[44,62,80], textColor:[255,255,255], fontStyle:'bold', halign:'center'},
     bodyStyles:{fillColor:false},
     alternateRowStyles:{fillColor:false},
     columnStyles:{0:{halign:'left'},1:{halign:'left'}}
@@ -797,12 +792,7 @@ async function generatePDF(){
       body:remainingBatch,
       theme:'plain',
       styles:{fontSize:9, lineWidth:0.2, lineColor:[120,120,120], fillColor:false},
-      headStyles:{
-        fillColor:[220,235,245], // darker Alice Blue
-        textColor:[0,0,0],
-        fontStyle:'bold',
-        halign:'center'
-      },
+      headStyles:{fillColor:[44,62,80], textColor:[255,255,255], fontStyle:'bold', halign:'center'},
       bodyStyles:{fillColor:false},
       alternateRowStyles:{fillColor:false},
       columnStyles:{0:{halign:'left'},1:{halign:'left'}}
@@ -832,11 +822,10 @@ async function generatePDF(){
   });
 
   doc.setFontSize(10);
-  doc.setTextColor(0,0,128); // navy blue
+  doc.setTextColor(0, 0, 128);
   doc.text("Grand Total (in words):", margin.left, noteY + 4);
   const wrappedWords = doc.splitTextToSize(amountWords, wrapWidth);
   doc.text(wrappedWords, margin.left, noteY + 10);
-  doc.setTextColor(0,0,0); // reset
   let notesEndY = noteY + wrappedWords.length * 5 + 15;
 
   // Payment Summary
@@ -850,12 +839,12 @@ async function generatePDF(){
       [{content:"Grand Total", styles:{fontStyle:'bold'}},{content:n(gTotal), styles:{fontStyle:'bold'}}],
       ["Paid Amount",n(paid)],
       ["Payment Type",paymentType],
-      [{content:"Balance Amount", styles:{textColor:[0,0,128], fontStyle:'bold'}},
-       {content:n(balance), styles:{textColor:[0,0,128], fontStyle:'bold'}}]
+      [{content:"Balance Amount", styles:{textColor:[200,0,0], fontStyle:'bold'}},
+       {content:n(balance), styles:{textColor:[200,0,0], fontStyle:'bold'}}]
     ],
     theme:'plain',
     styles:{fontSize:9, lineWidth:0.2, lineColor:[150,150,150], fillColor:false},
-    headStyles:{fillColor:[220,235,245], textColor:[0,0,0], fontStyle:'bold'},
+    headStyles:{fillColor:[39,174,96], textColor:[255,255,255], fontStyle:'bold'},
     bodyStyles:{fillColor:false},
     alternateRowStyles:{fillColor:false},
     columnStyles:{0:{halign:'left'},1:{halign:'right'}}
@@ -919,11 +908,7 @@ async function generatePDF(){
       body:hsnTableData,
       theme:'plain',
       styles:{fontSize:9, lineWidth:0.2, lineColor:[150,150,150], fillColor:false},
-      headStyles:{
-        fillColor:[220,235,245], // darker Alice Blue
-        textColor:[0,0,0],
-        fontStyle:'bold'
-      },
+      headStyles:{fillColor:[52,73,94], textColor:[255,255,255], fontStyle:'bold'},
       bodyStyles:{fillColor:false},
       alternateRowStyles:{fillColor:false},
       margin:{left:margin.left},
@@ -951,22 +936,11 @@ async function generatePDF(){
   doc.save(`${buyerName}_${invoiceNo}.pdf`);
 }
 
-  const sigData = localStorage.getItem('signature');
-  if (sigData){ doc.addImage(sigData,'JPEG', pageWidth - margin.right - 40, sigY, 40,20); sigY+=22; }
-  doc.text("For "+(document.getElementById("sellerName").value||"Seller"),pageWidth-margin.right,sigY,{align:'right'});
-  doc.text("(Authorized Signatory)",pageWidth-margin.right,sigY+6,{align:'right'});
-
-  addFooter();
-  doc.save(`${buyerName}_${invoiceNo}.pdf`);
-}
-
 
 attachEvents();
 calculateInvoice();
 </script>
 </body>
 </html>
-
-
 
 
