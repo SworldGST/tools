@@ -663,7 +663,7 @@ async function generatePDF(){
   }
 
   // ===== Watermark =====
-  async function getFaintLogo(dataURL, opacity=0.1) {
+  async function getFaintLogo(dataURL, opacity=0.01) {
     return new Promise(resolve=>{
       if (!dataURL) return resolve(null);
       const img = new Image();
@@ -941,3 +941,4 @@ calculateInvoice();
 </script>
 </body>
 </html>
+
