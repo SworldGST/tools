@@ -185,6 +185,19 @@ footer {
 .upload-group .clear-button:hover {
     background-color: #c0392b;
 }
+
+/* Added delete button styling */
+.deleteRowBtn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+.deleteRowBtn:hover {
+  background-color: #c0392b;
+}
 </style>
 </head>
 <body>
@@ -265,6 +278,7 @@ footer {
             <th>CGST</th>
             <th>IGST</th>
             <th>Total</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -287,6 +301,7 @@ footer {
             <td class="cgst numeric">0</td>
             <td class="igst numeric">0</td>
             <td class="total numeric">0</td>
+            <td><button class="deleteRowBtn" onclick="deleteRow(this)">X</button></td>
           </tr>
         </tbody>
         <tfoot>
@@ -297,6 +312,7 @@ footer {
             <td class="grandCGST numeric">0</td>
             <td class="grandIGST numeric">0</td>
             <td class="grandTotal numeric">0</td>
+            <td></td>
           </tr>
         </tfoot>
       </table>
@@ -442,7 +458,8 @@ function loadItems() {
         <td class="sgst numeric">0</td>
         <td class="cgst numeric">0</td>
         <td class="igst numeric">0</td>
-        <td class="total numeric">0</td>`;
+        <td class="total numeric">0</td>
+        <td><button class="deleteRowBtn" onclick="deleteRow(this)">X</button></td>`;
       tableBody.appendChild(row);
     });
     attachEvents();
@@ -519,10 +536,19 @@ function addItem(){
     <td class="sgst numeric">0</td>
     <td class="cgst numeric">0</td>
     <td class="igst numeric">0</td>
-    <td class="total numeric">0</td>`;
+    <td class="total numeric">0</td>
+    <td><button class="deleteRowBtn" onclick="deleteRow(this)">X</button></td>`;
   table.appendChild(row);
   attachEvents();
   saveItems(); // Save items after adding a new row
+}
+
+// === Delete Row ===
+function deleteRow(btn){
+  const row = btn.closest('tr');
+  if (row) row.remove();
+  calculateInvoice();
+  saveItems();
 }
 
 // === Events ===
@@ -575,14 +601,16 @@ function updateBalance(){
 }
 
 // === PDF ===
-function generatePDF(){
+// === PDF ===
+async function generatePDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p','mm','a4');
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = {left:14,right:14,top:15,bottom:18};
-  const n = v=>(parseFloat(v)||0).toFixed(2);
+  const margin = {left:14, right:14, top:15, bottom:18};
+  const n = v => (parseFloat(v)||0).toFixed(2);
 
+  // ===== Values =====
   const taxable = parseFloat(document.querySelector('.grandBasic').innerText)||0;
   const sgst = parseFloat(document.querySelector('.grandSGST').innerText)||0;
   const cgst = parseFloat(document.querySelector('.grandCGST').innerText)||0;
@@ -592,25 +620,18 @@ function generatePDF(){
   const paid = parseFloat(document.getElementById('paymentReceived').value)||0;
   const balance = gTotal-paid;
 
-  // Seller State & Payment Type
   const sellerState = document.getElementById("sellerState").value || "Seller State";
   const paymentType = document.getElementById("paymentType") ? document.getElementById("paymentType").value : "N/A";
-
-  // Buyer Name & Invoice No. for filename
   const buyerName = (document.getElementById("buyerName").value || "Buyer").replace(/\s+/g,'_');
   const invoiceNo = (document.getElementById("invoiceNo").value || "Invoice");
-
-  // Format date to DD/MM/YYYY
   const invoiceDate = document.getElementById("invoiceDate").value;
   let formattedDate = "-";
   if (invoiceDate) {
-    const dateParts = invoiceDate.split('-');
-    if (dateParts.length === 3) {
-        formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-    }
+    const d = invoiceDate.split('-');
+    if (d.length === 3) formattedDate = `${d[2]}/${d[1]}/${d[0]}`;
   }
 
-  // Number to words
+  // ===== Number to Words =====
   function inWords(num){
     const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
     'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
@@ -622,214 +643,298 @@ function generatePDF(){
     str+=(n[2]!=0)?(a[Number(n[2])]||b[n[2][0]]+' '+a[n[2][1]])+' Lakh ':'';
     str+=(n[3]!=0)?(a[Number(n[3])]||b[n[3][0]]+' '+a[n[3][1]])+' Thousand ':'';
     str+=(n[4]!=0)?(a[Number(n[4])]||b[n[4][0]]+' '+a[n[4][1]])+' Hundred ':'';
-    str+=(n[5]!=0)?((str!='')?'and ':'')+(a[Number(n[5])]||b[n[5][0]]+' '+a[n[5][1]])+' ':'';
+    str+=(n[5]!=0)?((str!='')?'and ':'')+(a[Number(n[5])]||b[n[5][0]]+' '+a[n[5][1]])+' ':''; 
     return str.trim()+" Only";
   }
   const amountWords = inWords(Math.round(gTotal));
 
-  // === Header ===
-  doc.setFont('helvetica','bold'); doc.setFontSize(14);
-  doc.text("TAX INVOICE", pageWidth/2, margin.top, {align:"center"});
-  
-  // Add Logo if available
-  const logoData = localStorage.getItem('logo');
-  if (logoData) {
-    // Positioning the logo on the left, to the left of the header title
-    const logoWidth = 30; // Adjust as needed
-    const logoHeight = 30; // Adjust as needed
-    const logoX = margin.left;
-    const logoY = margin.top - 5;
-    doc.addImage(logoData, 'JPEG', logoX, logoY, logoWidth, logoHeight);
+  // ===== Footer =====
+  function addFooter() {
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(100);
+    doc.text(
+      "Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mob: 8319601616",
+      pageWidth/2,
+      pageHeight - 6,
+      {align:'center'}
+    );
+    doc.setTextColor(0);
   }
-  
-  let y=38;
-  doc.setFontSize(10); doc.setFont('helvetica','bold'); 
-  doc.text("Seller:",margin.left,y); 
-  doc.setFont('helvetica','normal');
 
-  doc.text(document.getElementById("sellerName").value||"-",margin.left,y+5);
-  doc.text("GSTIN: "+(document.getElementById("sellerGST").value||"-"),margin.left,y+10);
-  
-  const sellerAddress = document.getElementById("sellerAddress").value || "-";
-  const sellerAddressLines = doc.splitTextToSize("Address: " + sellerAddress, (pageWidth/2 - margin.left - 5));
-  doc.text(sellerAddressLines, margin.left, y+15);
-  let sellerAddressHeight = (sellerAddressLines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor;
+  // ===== Watermark =====
+  async function getFaintLogo(dataURL, opacity=0.1) {
+    return new Promise(resolve=>{
+      if (!dataURL) return resolve(null);
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.globalAlpha = opacity;
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = ()=> resolve(null);
+      img.src = dataURL;
+    });
+  }
+  const faintLogo = await getFaintLogo(localStorage.getItem('logo'),0.1);
 
-  doc.text("State: "+(sellerState||"-"),margin.left,y+15+sellerAddressHeight+5);
-  
-  doc.setFont('helvetica','bold'); doc.text("Buyer:",pageWidth/2,y); 
-  doc.setFont('helvetica','normal');
-  
-  const buyerAddress = document.getElementById("buyerAddress").value || "-";
-  const buyerAddressLines = doc.splitTextToSize("Address: " + buyerAddress, (pageWidth/2 - margin.right - 5));
-  doc.text(buyerAddressLines, pageWidth/2, y+15);
-  let buyerAddressHeight = (buyerAddressLines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor;
-  
-  doc.text(document.getElementById("buyerName").value||"-",pageWidth/2,y+5);
-  doc.text("GSTIN: "+(document.getElementById("buyerGST").value||"-"),pageWidth/2,y+10);
-  doc.text("State: "+(document.getElementById("buyerState").value||"-"),pageWidth/2,y+15+buyerAddressHeight+5);
+  function addWatermark(docRef) {
+    if (!faintLogo) return;
+    const wmWidth = pageWidth * 0.35;
+    const wmHeight = pageHeight * 0.35;
+    const x = (pageWidth - wmWidth) / 2;
+    const y = (pageHeight - wmHeight) / 2;
+    docRef.addImage(faintLogo,'PNG',x,y,wmWidth,wmHeight);
+  }
 
-  y += 28 + Math.max(sellerAddressHeight, buyerAddressHeight) + 5; 
+  // ===== Header =====
+  function drawHeader(){
+    doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text("TAX INVOICE", pageWidth/2, margin.top, {align:"center"});
 
-  doc.setFont('helvetica','bold');
-  doc.text("Invoice No: "+(invoiceNo||"-"),margin.left,y);
-  doc.text("Date: "+formattedDate,pageWidth/2,y);
+    let y = 38;
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); 
+    doc.text("Seller:",margin.left,y);
+    doc.text(document.getElementById("sellerName").value||"-",margin.left,y+5);
+    doc.text("GSTIN: "+(document.getElementById("sellerGST").value||"-"),margin.left,y+10);
+    const sAddr = document.getElementById("sellerAddress").value || "-";
+    const sLines = doc.splitTextToSize("Address: " + sAddr, (pageWidth/2 - margin.left - 5));
+    doc.text(sLines, margin.left, y+15);
+    let sH = (sLines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor;
+    doc.text("State: "+(sellerState||"-"),margin.left,y+15+sH+5);
 
-  // === Items table ===
-  const body=[]; document.querySelectorAll("#itemsTable tbody tr").forEach(r=>{
-    body.push([
+    doc.text("Buyer:",pageWidth/2,y);
+    const bAddr = document.getElementById("buyerAddress").value || "-";
+    const bLines = doc.splitTextToSize("Address: " + bAddr, (pageWidth/2 - margin.right - 5));
+    doc.text(document.getElementById("buyerName").value||"-",pageWidth/2,y+5);
+    doc.text("GSTIN: "+(document.getElementById("buyerGST").value||"-"),pageWidth/2,y+10);
+    doc.text(bLines, pageWidth/2, y+15);
+    let bH = (bLines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor;
+    doc.text("State: "+(document.getElementById("buyerState").value||"-"),pageWidth/2,y+15+bH+5);
+
+    let invY = y + 28 + Math.max(sH,bH) + 5;
+    doc.text("Invoice No: "+(invoiceNo||"-"),margin.left,invY);
+    doc.text("Date: "+formattedDate,pageWidth/2,invY);
+
+    return invY + 10;
+  }
+
+  // ===== First page =====
+  addWatermark(doc);
+  const headerBottomY = drawHeader();
+  addFooter();
+
+  // ===== Items Table =====
+  const rows = document.querySelectorAll("#itemsTable tbody tr");
+
+  let hasSGST = false, hasCGST = false, hasIGST = false;
+  rows.forEach(r=>{
+    if (parseFloat(r.querySelector(".sgst").innerText) > 0) hasSGST = true;
+    if (parseFloat(r.querySelector(".cgst").innerText) > 0) hasCGST = true;
+    if (parseFloat(r.querySelector(".igst").innerText) > 0) hasIGST = true;
+  });
+
+  let itemHead = ['Item','HSN','GST Rate','Qty','Price (Incl GST)','Basic'];
+  if (hasSGST) itemHead.push('SGST');
+  if (hasCGST) itemHead.push('CGST');
+  if (hasIGST) itemHead.push('IGST');
+  itemHead.push('Total');
+
+  const body = [];
+  rows.forEach(r=>{
+    const row = [
       r.querySelector(".itemName").value||"-",
       r.querySelector(".hsnCode").value||"-",
       (r.querySelector(".gstRate").value||"0")+"%",
       r.querySelector(".quantity").value||"0",
       r.querySelector(".price").value||"0",
-      r.querySelector(".basic").innerText||"0",
-      r.querySelector(".sgst").innerText||"0",
-      r.querySelector(".cgst").innerText||"0",
-      r.querySelector(".igst").innerText||"0",
-      r.querySelector(".total").innerText||"0"
-    ]);
+      r.querySelector(".basic").innerText||"0"
+    ];
+    if (hasSGST) row.push(r.querySelector(".sgst").innerText||"0");
+    if (hasCGST) row.push(r.querySelector(".cgst").innerText||"0");
+    if (hasIGST) row.push(r.querySelector(".igst").innerText||"0");
+    row.push(r.querySelector(".total").innerText||"0");
+    body.push(row);
   });
+
+  const firstBatch = body.slice(0,15);
+  const remainingBatch = body.slice(15);
+
   doc.autoTable({
-    startY:y+6,
-    head:[['Item','HSN','GST Rate','Qty','Price (Incl GST)','Basic','SGST','CGST','IGST','Total']],
-    body:body,
-    theme:'grid',
-    styles:{fontSize:9},
-    headStyles:{fillColor:[0,92,153],textColor:255,halign:'center'},
-    bodyStyles:{halign:'right'},
-    columnStyles:{0:{halign:'left'},1:{halign:'left'}},
-    margin:{left:margin.left,right:margin.right}
+    startY: headerBottomY,
+    margin:{left:margin.left, right:margin.right},
+    head:[itemHead],
+    body:firstBatch,
+    theme:'plain',
+    styles:{fontSize:9, lineWidth:0.2, lineColor:[120,120,120], fillColor:false},
+    headStyles:{fillColor:[44,62,80], textColor:[255,255,255], fontStyle:'bold', halign:'center'},
+    bodyStyles:{fillColor:false},
+    alternateRowStyles:{fillColor:false},
+    columnStyles:{0:{halign:'left'},1:{halign:'left'}}
   });
 
-  // === HSN-wise Summary & GST Summary (Inline) ===
-  const bottomTablesY = doc.lastAutoTable.finalY + 8;
-  let finalTablesY = bottomTablesY;
+  let cursorY = doc.lastAutoTable.finalY + 10;
 
-  // HSN-wise Summary Table (Left side)
-  const hsnSummary = {};
-  document.querySelectorAll("#itemsTable tbody tr").forEach(r => {
-      const hsn = r.querySelector(".hsnCode").value || "N/A";
-      const gstRate = r.querySelector(".gstRate").value || "0";
-      const taxableValue = parseFloat(r.querySelector(".basic").innerText) || 0;
-      const sgst = parseFloat(r.querySelector(".sgst").innerText) || 0;
-      const cgst = parseFloat(r.querySelector(".cgst").innerText) || 0;
-      const igst = parseFloat(r.querySelector(".igst").innerText) || 0;
+  if (remainingBatch.length > 0){
+    doc.addPage();
+    addWatermark(doc);
+    const newHeaderY = drawHeader();
+    addFooter();
 
-      const key = `${hsn}-${gstRate}`;
-      if (!hsnSummary[key]) {
-          hsnSummary[key] = {
-              hsn,
-              gstRate,
-              taxable: 0,
-              sgst: 0,
-              cgst: 0,
-              igst: 0
-          };
-      }
-      hsnSummary[key].taxable += taxableValue;
-      hsnSummary[key].sgst += sgst;
-      hsnSummary[key].cgst += cgst;
-      hsnSummary[key].igst += igst;
-  });
+    doc.autoTable({
+      startY:newHeaderY,
+      margin:{left:margin.left, right:margin.right},
+      head:[itemHead],
+      body:remainingBatch,
+      theme:'plain',
+      styles:{fontSize:9, lineWidth:0.2, lineColor:[120,120,120], fillColor:false},
+      headStyles:{fillColor:[44,62,80], textColor:[255,255,255], fontStyle:'bold', halign:'center'},
+      bodyStyles:{fillColor:false},
+      alternateRowStyles:{fillColor:false},
+      columnStyles:{0:{halign:'left'},1:{halign:'left'}}
+    });
 
-  const hsnTableData = Object.values(hsnSummary).map(item => [
-      item.hsn,
-      item.gstRate + '%',
-      n(item.taxable),
-      n(item.sgst),
-      n(item.cgst),
-      n(item.igst)
-  ]);
-  
-  if (hsnTableData.length > 0) {
-      doc.autoTable({
-          startY: bottomTablesY,
-          tableWidth: (pageWidth / 2 - margin.left - 5),
-          head: [["HSN", "GST Rate", "Taxable Value", "SGST", "CGST", "IGST"]],
-          body: hsnTableData,
-          theme: 'grid',
-          styles: { fontSize: 9, halign: 'right' },
-          headStyles: { fillColor: [150, 190, 220], textColor: 0 },
-          columnStyles: { 0: { halign: 'left' } },
-          margin: { left: margin.left }
-      });
-      finalTablesY = Math.max(finalTablesY, doc.lastAutoTable.finalY);
+    cursorY = doc.lastAutoTable.finalY + 10;
   }
 
-  // GST Summary Table (Right side)
-  doc.autoTable({
-    startY: bottomTablesY,
-    margin:{left:pageWidth/2},
-    tableWidth:(pageWidth/2 - margin.right),
-    head:[["Particulars","Amount"]],
-    body:[
-      ["Total Taxable Value",n(taxable)],
-      ["Total GST",n(totalGST)],
-      [{content:"Grand Total", styles:{fillColor:[255,230,150], fontStyle:'bold'}}, {content:n(gTotal), styles:{fillColor:[255,230,150], fontStyle:'bold'}}],
-      ["Paid Amount",n(paid)],
-      ["Payment Type",paymentType],
-      [{content:"Balance Amount", styles:{textColor:[200,0,0], fontStyle:'bold'}}, {content:n(balance), styles:{textColor:[200,0,0], fontStyle:'bold'}}]
-    ],
-    theme:'grid',
-    styles:{fontSize:9},
-    headStyles:{fillColor:[100,100,255]},
-    columnStyles:{
-      0:{halign:'left'},
-      1:{halign:'right'}
-    }
-  });
-  finalTablesY = Math.max(finalTablesY, doc.lastAutoTable.finalY);
+  // ===== Notes (left) + Payment Summary (right) =====
+  let notesStartY = cursorY;
 
-  // === Notes Section ===
-  let notesY = finalTablesY + 10;
-  const notesLines = [
+  // Notes
+  doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text("Notes:", margin.left, notesStartY);
+
+  const noteLines = [
     "- This is a computer-generated invoice. No signature required.",
     `- Subject to ${sellerState} jurisdiction only.`,
     "- Thank you for your business!"
   ];
-  doc.setFontSize(9); doc.setFont('helvetica','bold');
-  doc.text("Notes:", margin.left, notesY);
-  doc.setFont('helvetica','normal');
-  notesLines.forEach((line,i)=> doc.text(line, margin.left, notesY+6+(i*6)));
-  let notesFinalY = notesY + notesLines.length * 6 + 12;
+  let wrapWidth = pageWidth/2 - margin.left - 4;
+  let noteY = notesStartY + 6;
+  noteLines.forEach(line=>{
+    const wrapped = doc.splitTextToSize(line, wrapWidth);
+    doc.text(wrapped, margin.left, noteY);
+    noteY += wrapped.length * 5 + 2;
+  });
 
-  // === Amount in Words ===
-  let amountWordsY = notesFinalY;
-  doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text("Grand Total (in words):",margin.left,amountWordsY);
-  doc.setFont('helvetica','normal'); 
-  doc.text(amountWords,margin.left,amountWordsY+6);
+  doc.setFontSize(10);
+  doc.text("Grand Total (in words):", margin.left, noteY + 4);
+  const wrappedWords = doc.splitTextToSize(amountWords, wrapWidth);
+  doc.text(wrappedWords, margin.left, noteY + 10);
+  let notesEndY = noteY + wrappedWords.length * 5 + 15;
 
-  // === Authorized Signatory with Signature ===
-  const signatureData = localStorage.getItem('signature');
-  const rightAlignX = pageWidth - margin.right;
-  let signatureY = amountWordsY + 18; // Increased vertical offset
+  // Payment Summary
+  doc.autoTable({
+    startY: notesStartY,
+    margin:{left:pageWidth/2,right:margin.right},
+    head:[["Particulars","Amount"]],
+    body:[
+      ["Total Taxable Value",n(taxable)],
+      ["Total GST",n(totalGST)],
+      [{content:"Grand Total", styles:{fontStyle:'bold'}},{content:n(gTotal), styles:{fontStyle:'bold'}}],
+      ["Paid Amount",n(paid)],
+      ["Payment Type",paymentType],
+      [{content:"Balance Amount", styles:{textColor:[200,0,0], fontStyle:'bold'}},
+       {content:n(balance), styles:{textColor:[200,0,0], fontStyle:'bold'}}]
+    ],
+    theme:'plain',
+    styles:{fontSize:9, lineWidth:0.2, lineColor:[150,150,150], fillColor:false},
+    headStyles:{fillColor:[39,174,96], textColor:[255,255,255], fontStyle:'bold'},
+    bodyStyles:{fillColor:false},
+    alternateRowStyles:{fillColor:false},
+    columnStyles:{0:{halign:'left'},1:{halign:'right'}}
+  });
 
-  if (signatureData) {
-      const imgWidth = 40;
-      const imgHeight = 20;
-      const imgX = rightAlignX - imgWidth;
-      doc.addImage(signatureData, 'JPEG', imgX, signatureY, imgWidth, imgHeight);
-      signatureY += imgHeight + 2;
-  } else {
-      signatureY += 10; // Add some space even if no image
+  let paymentEndY = doc.lastAutoTable.finalY;
+  cursorY = Math.max(notesEndY, paymentEndY) + 10;
+
+  // ===== HSN Summary =====
+  const hsnSummary = {};
+  rows.forEach(r=>{
+    const hsn = r.querySelector(".hsnCode").value || "N/A";
+    const gstRate = r.querySelector(".gstRate").value || "0";
+    const taxableValue = parseFloat(r.querySelector(".basic").innerText) || 0;
+    const sgstVal = parseFloat(r.querySelector(".sgst").innerText) || 0;
+    const cgstVal = parseFloat(r.querySelector(".cgst").innerText) || 0;
+    const igstVal = parseFloat(r.querySelector(".igst").innerText) || 0;
+    const key = `${hsn}-${gstRate}`;
+    if (!hsnSummary[key]) hsnSummary[key] = {hsn,gstRate,taxable:0,sgst:0,cgst:0,igst:0};
+    hsnSummary[key].taxable += taxableValue;
+    hsnSummary[key].sgst += sgstVal;
+    hsnSummary[key].cgst += cgstVal;
+    hsnSummary[key].igst += igstVal;
+  });
+
+  const hsnTotals = {taxable:0,sgst:0,cgst:0,igst:0};
+  Object.values(hsnSummary).forEach(item=>{
+    hsnTotals.taxable += item.taxable;
+    hsnTotals.sgst += item.sgst;
+    hsnTotals.cgst += item.cgst;
+    hsnTotals.igst += item.igst;
+  });
+
+  const hsnHead = ["HSN","GST Rate","Taxable"];
+  if (hasSGST) hsnHead.push("SGST");
+  if (hasCGST) hsnHead.push("CGST");
+  if (hasIGST) hsnHead.push("IGST");
+
+  const hsnTableData = Object.values(hsnSummary).map(item => {
+    const row = [item.hsn, item.gstRate+'%', n(item.taxable)];
+    if (hasSGST) row.push(n(item.sgst));
+    if (hasCGST) row.push(n(item.cgst));
+    if (hasIGST) row.push(n(item.igst));
+    return row;
+  });
+
+  if (hsnTableData.length>0){
+    const totalRow = [
+      {content:"Grand Total", styles:{fontStyle:'bold'}},
+      {content:"-", styles:{fontStyle:'bold'}},
+      {content:n(hsnTotals.taxable), styles:{fontStyle:'bold'}}
+    ];
+    if (hasSGST) totalRow.push({content:n(hsnTotals.sgst), styles:{fontStyle:'bold'}});
+    if (hasCGST) totalRow.push({content:n(hsnTotals.cgst), styles:{fontStyle:'bold'}});
+    if (hasIGST) totalRow.push({content:n(hsnTotals.igst), styles:{fontStyle:'bold'}});
+    hsnTableData.push(totalRow);
+
+    doc.autoTable({
+      startY: cursorY,
+      head:[hsnHead],
+      body:hsnTableData,
+      theme:'plain',
+      styles:{fontSize:9, lineWidth:0.2, lineColor:[150,150,150], fillColor:false},
+      headStyles:{fillColor:[52,73,94], textColor:[255,255,255], fontStyle:'bold'},
+      bodyStyles:{fillColor:false},
+      alternateRowStyles:{fillColor:false},
+      margin:{left:margin.left},
+      pageBreak:'auto'
+    });
+
+    cursorY = doc.lastAutoTable.finalY + 10;
   }
 
-  doc.setFont('helvetica','bold');
-  doc.text("For " + (document.getElementById("sellerName").value || "Seller"), rightAlignX, signatureY, { align: 'right' });
-  doc.setFont('helvetica','normal');
-  doc.text("(Authorized Signatory)", rightAlignX, signatureY + 6, { align: 'right' });
-  
-  // === Footer fixed ===
-  doc.setFontSize(9);
-  doc.setTextColor(100);
-  doc.text("Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mob: 8319601616", pageWidth/2, pageHeight-6, {align:'center'});
-  doc.setTextColor(0);
+  // ===== Signature =====
+  let sigY = cursorY + 10;
+  if (sigY > pageHeight - 30) {  
+    doc.addPage();
+    addWatermark(doc);
+    sigY = drawHeader() + 20;
+    addFooter();
+  }
 
-  // Save with BuyerName_InvoiceNo.pdf
+  const sigData = localStorage.getItem('signature');
+  if (sigData){ doc.addImage(sigData,'JPEG', pageWidth - margin.right - 40, sigY, 40,20); sigY+=22; }
+  doc.text("For "+(document.getElementById("sellerName").value||"Seller"),pageWidth-margin.right,sigY,{align:'right'});
+  doc.text("(Authorized Signatory)",pageWidth-margin.right,sigY+6,{align:'right'});
+
+  addFooter();
   doc.save(`${buyerName}_${invoiceNo}.pdf`);
 }
+
 
 attachEvents();
 calculateInvoice();
