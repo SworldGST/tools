@@ -822,7 +822,7 @@ async function generatePDF(){
   });
 
   doc.setFontSize(10);
-  doc.setTextColor(200, 0, 0);
+  doc.setTextColor(0, 0, 128);
   doc.text("Grand Total (in words):", margin.left, noteY + 4);
   const wrappedWords = doc.splitTextToSize(amountWords, wrapWidth);
   doc.text(wrappedWords, margin.left, noteY + 10);
@@ -942,5 +942,6 @@ calculateInvoice();
 </script>
 </body>
 </html>
+
 
 
