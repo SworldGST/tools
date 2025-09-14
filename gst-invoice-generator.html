@@ -577,7 +577,7 @@ async function generatePDF(){
   }
 
   // ===== Watermark =====
-  async function getFaintLogo(dataURL, opacity=0.01) {
+  async function getFaintLogo(dataURL, opacity=0.05) {
     return new Promise(resolve=>{
       if (!dataURL) return resolve(null);
       const img = new Image();
@@ -594,7 +594,7 @@ async function generatePDF(){
       img.src = dataURL;
     });
   }
-  const faintLogo = await getFaintLogo(localStorage.getItem('logo'),0.1);
+  const faintLogo = await getFaintLogo(localStorage.getItem('logo'),0.05);
 
   function addWatermark(docRef) {
     if (!faintLogo) return;
@@ -736,7 +736,6 @@ async function generatePDF(){
   });
 
   doc.setFontSize(10);
-  doc.setTextColor(0, 0, 128);
   doc.text("Grand Total (in words):", margin.left, noteY + 4);
   const wrappedWords = doc.splitTextToSize(amountWords, wrapWidth);
   doc.text(wrappedWords, margin.left, noteY + 10);
