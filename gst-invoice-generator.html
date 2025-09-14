@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>GST Invoice Generator</title>
 <style>
+/* === Base Styles === */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -14,7 +15,6 @@ body {
   min-height: 100vh;
   align-items: center;
 }
-
 header {
   background: linear-gradient(90deg, #a0d8f1, #cce7f9);
   color: #004e92;
@@ -28,105 +28,46 @@ header {
   gap: 15px;
   box-shadow: 0 6px 20px rgba(0,0,0,.08);
 }
-
 header h1 {
   margin: 0;
   font-size: 1.5em;
   letter-spacing: 0.3px;
 }
-
 .logo {
   height: 60px;
   width: auto;
   padding: 5px;
 }
-
-.subheader {
-  width: 100%;
-  text-align: center;
-  margin: 10px 0;
-}
-
-.subheader h2 {
-  margin: 0;
-  font-size: 1.2em;
-  font-weight: normal;
-  color: #004e92;
-}
-
+.subheader { width: 100%; text-align: center; margin: 10px 0; }
+.subheader h2 { margin: 0; font-size: 1.2em; font-weight: normal; color: #004e92; }
 main {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 20px;
-  gap: 12px;
-  width: 100%;
-  max-width: 1400px;
-  padding-bottom: 120px; /* Increased padding to prevent overlap with fixed footer */
+  display: flex; flex-wrap: wrap; justify-content: center;
+  padding: 20px; gap: 12px; width: 100%; max-width: 1400px;
+  padding-bottom: 120px;
 }
 .column {
-  flex: 1 1 300px;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 10px;
+  flex: 1 1 300px; background: #ffffff; padding: 15px; border-radius: 10px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 label {
-  display: block;
-  margin-top: 10px;
-  font-weight: 600;
-  color: #004e92;
-  font-size: 0.9em;
+  display: block; margin-top: 10px; font-weight: 600; color: #004e92; font-size: 0.9em;
 }
 input[type="text"], input[type="number"], select, input[type="date"], textarea {
-  width: 100%;
-  padding: 5px 10px;
-  margin-top: 3px;
-  border-radius: 4px;
-  border: 1px solid #99ccee;
-  font-size: 0.9em;
-  background: #f0f8ff;
-  box-sizing: border-box;
+  width: 100%; padding: 5px 10px; margin-top: 3px;
+  border-radius: 4px; border: 1px solid #99ccee; font-size: 0.9em;
+  background: #f0f8ff; box-sizing: border-box;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: #66b2ff;
-  box-shadow: 0 0 4px rgba(102,178,255,0.3);
-  outline: none;
+  border-color: #66b2ff; box-shadow: 0 0 4px rgba(102,178,255,0.3); outline: none;
 }
-textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-.table-responsive {
-  overflow-x: auto;
-  width: 100%; /* Ensure the container respects the parent's width */
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  font-size: 0.88em;
-  /* min-width: 750px; THIS IS THE OLD RULE THAT CAUSED THE ISSUE. IT IS REMOVED. */
-}
-th, td {
-  border: 1px solid #99ccee;
-  padding: 4px 6px;
-  text-align: left;
-}
-th {
-  background: #cce7f9;
-  color: #004e92;
-}
+textarea { resize: vertical; min-height: 60px; }
+.table-responsive { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.88em; min-width: 700px; }
+th, td { border: 1px solid #99ccee; padding: 4px 6px; text-align: left; }
+th { background: #cce7f9; color: #004e92; }
 td input, td select { width: 100%; padding: 3px; box-sizing: border-box; }
 td.numeric { text-align:right; }
-button {
-  padding: 6px 10px;
-  margin-top: 8px;
-  font-size: 0.85em;
-  border-radius: 5px;
-  cursor: pointer;
-  border: none;
-}
+button { padding: 6px 10px; margin-top: 8px; font-size: 0.85em; border-radius: 5px; cursor: pointer; border: none; }
 #addRowBtn { background-color: #99d1ff; color: #004e92; }
 #addRowBtn:hover { background-color: #66b2ff; color: white; }
 #recalculateBtn { background-color: #ffb84d; color: #004e92; }
@@ -134,16 +75,9 @@ button {
 #generatePdfBtn { background-color: #4dc080; color: white; }
 #generatePdfBtn:hover { background-color: #339966; }
 footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  position: fixed; bottom: 0; left: 0; width: 100%;
   background: linear-gradient(90deg, #0a74da, #005ba0);
-  color: white;
-  text-align: center;
-  padding: 10px;
-  font-size: 0.9em;
-  z-index: 1000;
+  color: white; text-align: center; padding: 10px; font-size: 0.9em; z-index: 1000;
 }
 @media(max-width: 768px){
   .column { flex: 1 1 100%; }
@@ -151,56 +85,34 @@ footer {
   .summary { flex-direction: column; }
   .summary div { flex: none; width: 100%; }
 }
-.summary {
-  display:flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+/* --- Mobile fixes --- */
+@media (max-width: 600px) {
+  main { flex-direction: column; padding: 10px; }
+  .column { flex: 1 1 100% !important; width: 100% !important; }
+  .column button, #addRowBtn, #recalculateBtn, #generatePdfBtn { flex: 1 1 auto; width: 100%; }
+  .summary { flex-direction: column; }
+  .summary div { width: 100%; }
+  .upload-group { flex-direction: column; align-items: stretch; }
+  .upload-group input[type="file"], .upload-group .clear-button { width: 100%; }
+  label { margin-top: 14px; font-size: 1rem; }
+  input, select, textarea { font-size: 1rem; padding: 8px 10px; }
 }
-.summary div{
-  flex:1 1 200px;
-}
-.reset-button {
-  background-color: #e74c3c;
-  color: white;
-  padding: 5px 8px;
-  margin-left: 10px;
-}
-.reset-button:hover {
-  background-color: #c0392b;
-}
-.upload-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.upload-group input[type="file"] {
-    flex: 1;
-}
-.upload-group .clear-button {
-    background-color: #e74c3c;
-    color: white;
-    padding: 5px 8px;
-}
-.upload-group .clear-button:hover {
-    background-color: #c0392b;
-}
-
+.summary { display:flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.summary div{ flex:1 1 200px; }
+.reset-button { background-color: #e74c3c; color: white; padding: 5px 8px; margin-left: 10px; }
+.reset-button:hover { background-color: #c0392b; }
+.upload-group { display: flex; align-items: center; gap: 10px; }
+.upload-group input[type="file"] { flex: 1; }
+.upload-group .clear-button { background-color: #e74c3c; color: white; padding: 5px 8px; }
+.upload-group .clear-button:hover { background-color: #c0392b; }
 /* Added delete button styling */
-.deleteRowBtn {
-  background-color: #e74c3c;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: none;
-}
-.deleteRowBtn:hover {
-  background-color: #c0392b;
-}
+.deleteRowBtn { background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; border: none; }
+.deleteRowBtn:hover { background-color: #c0392b; }
 </style>
 </head>
 <body>
+<!-- === BODY CONTENT FROM ORIGINAL FILE === -->
+
 
 <header>
   <img src="S World Logo (2).png" alt="S World Logo" class="logo">
