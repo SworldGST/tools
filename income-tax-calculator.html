@@ -283,9 +283,14 @@ function calculateTax(){
   const stcg=getVisibleValue('stcg');
   let ltcg=getVisibleValue('ltcg');
 
-  const stdDed=parseFloat(document.getElementById('stdDeduction').value)||0;
   const nps=parseFloat(document.getElementById('nps').value)||0;
   const agniveer=parseFloat(document.getElementById('agniveer').value)||0;
+
+  // ✅ Standard deduction only if salary income exists
+  let stdDed=0;
+  if(salary > 0){
+    stdDed=parseFloat(document.getElementById('stdDeduction').value)||0;
+  }
 
   let totalIncome=salary+house+business+other;
   let totalDeductions=stdDed+nps+agniveer;
