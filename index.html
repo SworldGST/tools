@@ -50,6 +50,8 @@ main {
     width: 100%;
     max-width: 1200px;
     flex-grow: 1;
+    /* Added padding-bottom to ensure content sits above the footer which will now be flow-based */
+    padding-bottom: 70px; /* Adjust this value if the footer height changes */
 }
 .tools-container, .external-links-container {
     display: flex;
@@ -147,16 +149,17 @@ main {
     font-weight: bold;
 }
 footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    /* REMOVED: position: fixed; */
+    /* REMOVED: bottom: 0; */
+    /* REMOVED: left: 0; */
     width: 100%;
     background: linear-gradient(90deg, #0a74da, #005ba0);
     color: white;
     text-align: center;
-    padding: 10px;
+    padding: 15px; /* Increased padding slightly for visibility */
     font-size: 0.9em;
-    z-index: 1000;
+    /* REMOVED: z-index: 1000; */
+    margin-top: auto; /* Pushes the footer to the bottom of the body when flex is used */
 }
 </style>
 </head>
@@ -186,6 +189,12 @@ footer {
       <p>Determine TDS on various payments as per the latest government regulations.</p>
       <a href="tds-calculator.html" class="tool-link"><i class="fas fa-percent"></i> Go to Tool</a>
     </div>
+    
+    <div class="tool-card">
+      <h2>Quotation Maker</h2>
+      <p>Create professional and detailed quotations quickly for your clients and business needs.</p>
+      <a href="quote.html" class="tool-link"><i class="fas fa-file-alt"></i> Go to Tool</a>
+    </div>
   </div>
   
   <h2 class="section-heading">USEFUL EXTERNAL LINKS</h2>
@@ -206,5 +215,3 @@ footer {
 
 </body>
 </html>
-
-
