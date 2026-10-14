@@ -204,7 +204,7 @@ function recalc(){
     const sg = basic * (gstRate/2) / 100;
     const cg = sg;
     const bill = basic + sg + cg;
-    const tds = basic * 0.02;
+    const tds = gstRate > 0 ? (basic * 0.02) : 0;
     const bank = bill - tds;
 
     basicCell.textContent = fmt(basic);
