@@ -200,7 +200,7 @@ function recalc(){
     rateCell.textContent = gstRate + '%';
 
     const total = parseFloat(priceInput.value) || 0;
-    const basic = gstRate > 0 ? (total / (1 + gstRate/100)) : 0;
+    const basic = total / (1 + gstRate / 100);
     const sg = basic * (gstRate/2) / 100;
     const cg = sg;
     const bill = basic + sg + cg;
