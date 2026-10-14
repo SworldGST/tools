@@ -149,7 +149,11 @@
         <tbody id="calcBody"></tbody>
         <tfoot>
           <tr>
-            <td colspan="8" class="right">Grand Total</td>
+            <td colspan="4" class="right">Grand Total</td>
+            <td id="totalBasic">0.00</td>
+            <td id="totalSGST">0.00</td>
+            <td id="totalCGST">0.00</td>
+            <td id="totalBill">0.00</td>
             <td id="totalTDS">0.00</td>
             <td id="totalBank">0.00</td>
             <td></td>
@@ -162,8 +166,6 @@
         <b>GST & TDS (India) — quick note:</b> TDS on certain supplies is typically <b>2%</b> of the <i>taxable value</i> (basic price). For intrastate supplies, GST splits into <b>SGST</b> and <b>CGST</b> equally; for interstate, <b>IGST</b> applies (not shown here).
       </div>
     </section>
-
-    
   </div>
   <footer>©Software Developed By: S World The Complete Accounting Solutions, Balaghat. Mobile: 8319601616</footer>
 
@@ -176,13 +178,18 @@ const ITEM_RATES = {
 };
 
 const bodyEl = document.getElementById('calcBody');
+const totalBasicEl = document.getElementById('totalBasic');
+const totalSgstEl = document.getElementById('totalSGST');
+const totalCgstEl = document.getElementById('totalCGST');
+const totalBillEl = document.getElementById('totalBill');
 const totalTdsEl = document.getElementById('totalTDS');
 const totalBankEl = document.getElementById('totalBank');
 
 function fmt(n){ return (isFinite(n)? Number(n).toFixed(2) : '0.00'); }
 
 function recalc(){
-  let tTds = 0, tBank = 0;
+  let tBasic = 0, tSgst = 0, tCgst = 0, tBill = 0, tTds = 0, tBank = 0;
+
   [...bodyEl.querySelectorAll('tr')].forEach((tr, idx) => {
     tr.querySelector('.rownum').textContent = idx + 1;
     const sel = tr.querySelector('select');
@@ -201,7 +208,7 @@ function recalc(){
 
     const total = parseFloat(priceInput.value) || 0;
     const basic = total / (1 + gstRate / 100);
-    const sg = basic * (gstRate/2) / 100;
+    const sg = basic * (gstRate / 2) / 100;
     const cg = sg;
     const bill = basic + sg + cg;
     const tds = gstRate > 0 ? (basic * 0.02) : 0;
@@ -214,8 +221,18 @@ function recalc(){
     tdsCell.textContent = fmt(tds);
     bankCell.textContent = fmt(bank);
 
-    tTds += tds; tBank += bank;
+    tBasic += basic;
+    tSgst += sg;
+    tCgst += cg;
+    tBill += bill;
+    tTds += tds;
+    tBank += bank;
   });
+
+  totalBasicEl.textContent = fmt(tBasic);
+  totalSgstEl.textContent = fmt(tSgst);
+  totalCgstEl.textContent = fmt(tCgst);
+  totalBillEl.textContent = fmt(tBill);
   totalTdsEl.textContent = fmt(tTds);
   totalBankEl.textContent = fmt(tBank);
 }
@@ -263,7 +280,4 @@ document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF)
 addRow();
 </script>
 </body>
-
 </html>
-
-
